@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "924913075943",
+    "project_id": "sc-orderapp",
+    "storage_bucket": "sc-orderapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924913075943:android:6d472f9c0b875486c54442",
+        "android_client_info": {
+          "package_name": "com.sackmman.cart.b2b.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZWFAUuucwgvZfykUedVnwDQ8Va2wEetE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
