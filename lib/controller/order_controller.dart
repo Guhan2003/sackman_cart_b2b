@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
@@ -15,7 +16,7 @@ class OrderController extends GetxController {
   RxList<OrderItem> orderItemList = <OrderItem>[].obs;
   Rxn<OrderItem> currentItem = Rxn<OrderItem>();
 
-  //Report
+  // Report
   String selectedStoreReport = '';
   var report = <String, dynamic>{}.obs;
   RxList<Map<String, dynamic>> consolidateReport = <Map<String, dynamic>>[].obs;
@@ -52,20 +53,22 @@ class OrderController extends GetxController {
       orderDataList.value = consolidateReport.value.map((element) {
         return OrderData.fromJson(element);
       }).toList();
-      
     }
   }
 
-  Future getPDF(context, {required bool isIndividual}) async {
+  Future<Uint8List> getPDF(
+    BuildContext context, {
+    required bool isIndividual,
+  }) async {
     final pdf = pw.Document();
     if (isIndividual) {
+      double totalAmount = individualOrderData.value?.totalAmount ?? 0;
+      double receivedAmount = individualOrderData.value?.received ?? 0;
+
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            double totalAmount = individualOrderData.value?.totalAmount ?? 0;
-            double receivedAmount = individualOrderData.value?.received ?? 0;
-
             final List<pw.Widget> content = [];
 
             content.addAll([
@@ -183,7 +186,187 @@ class OrderController extends GetxController {
           },
         ),
       );
-    } else {}
+    } else {
+      // Consolidated report PDF generation
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            Map<String, Map<String, dynamic>> itemMap = {};
+            List<String> storeList = [];
+
+            for (var order in orderDataList) {
+              String store = order.store ?? '';
+              if (!storeList.contains(store)) {
+                storeList.add(store);
+              }
+
+              for (var item in order.items) {
+                String name = item.name;
+                double qty = item.qty;
+                double rate = item.rate;
+                String unit = item.unit;
+
+                if (!itemMap.containsKey(name)) {
+                  itemMap[name] = {
+                    "rate": rate,
+                    "unit": unit,
+                    "overallQty": 0.0,
+                    "storeQty": {},
+                  };
+                }
+
+                itemMap[name]!["overallQty"] += qty;
+                itemMap[name]!["storeQty"][store] =
+                    (itemMap[name]!["storeQty"][store] ?? 0) + qty;
+              }
+            }
+
+            double grandTotal = 0;
+
+            return [
+              pw.Text(
+                'Consolidated Report',
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                  decoration: pw.TextDecoration.underline,
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Table(
+                border: pw.TableBorder.all(),
+                columnWidths: {
+                  0: pw.FixedColumnWidth(100),
+                  1: pw.FixedColumnWidth(60),
+                  for (int i = 0; i < storeList.length; i++)
+                    i + 2: pw.FixedColumnWidth(80),
+                  storeList.length + 2: pw.FixedColumnWidth(60),
+                  storeList.length + 3: pw.FixedColumnWidth(60),
+                  storeList.length + 4: pw.FixedColumnWidth(80),
+                },
+                children: [
+                  // Table header
+                  pw.TableRow(
+                    children: [
+                      pw.Padding(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          'Item',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+                      pw.Padding(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          'Unit',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+                      ...storeList.map(
+                        (store) => pw.Padding(
+                          padding: pw.EdgeInsets.all(5),
+                          child: pw.Text(
+                            store,
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      pw.Padding(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          'Qty',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+                      pw.Padding(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          'Rate',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+                      pw.Padding(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          'Total',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Table rows
+                  ...itemMap.entries.map((entry) {
+                    String name = entry.key;
+                    var data = entry.value;
+                    double overallQty = data['overallQty'];
+                    double rate = data['rate'];
+                    String unit = data['unit'];
+                    double total = overallQty * rate;
+                    grandTotal += total;
+
+                    return pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: pw.EdgeInsets.all(5),
+                          child: pw.Text(name),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.all(5),
+                          child: pw.Text(unit),
+                        ),
+                        ...storeList.map((store) {
+                          double storeQty = data['storeQty'][store] ?? 0;
+                          return pw.Padding(
+                            padding: pw.EdgeInsets.all(5),
+                            child: pw.Text(storeQty > 0 ? '$storeQty' : '-'),
+                          );
+                        }),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.all(5),
+                          child: pw.Text('$overallQty'),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.all(5),
+                          child: pw.Text(rate.toStringAsFixed(0)),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.all(5),
+                          child: pw.Text('₹ ${total.toStringAsFixed(0)}'),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                  // Grand Total row
+                  pw.TableRow(
+                    children: [
+                      pw.Padding(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          'Grand Total',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+                      pw.Container(),
+                      for (int i = 0; i < storeList.length; i++) pw.Container(),
+                      pw.Container(),
+                      pw.Container(),
+                      pw.Padding(
+                        padding: pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          '₹ ${grandTotal.toStringAsFixed(0)}',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ];
+          },
+        ),
+      );
+    }
 
     return pdf.save();
   }

@@ -57,7 +57,6 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
         child: Column(
           children: [
             Row(
-              spacing: 20,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
@@ -65,7 +64,7 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
-
+                SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: pickDate,
                   child: const Text('Change Date'),
@@ -236,6 +235,22 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ],
+                          ),
+                          SizedBox(height: 20),
+                          SizedBox(
+                            width: size.width * 0.8,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                ),
+                              ),
+                              onPressed: () {
+                                orderController!
+                                    .previewPdf(context, isIndividual: false);
+                              },
+                              child: Text('Get PDF'),
+                            ),
                           ),
                         ],
                       ),
