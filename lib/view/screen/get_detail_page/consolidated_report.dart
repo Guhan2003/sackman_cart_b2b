@@ -44,7 +44,6 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -83,176 +82,141 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
                   ),
                 ),
                 onPressed: () async {
-                    orderController!.getConsolidatedReport(
-                      date: selectedDate!
-                    );
+                  orderController!.getConsolidatedReport(date: selectedDate!);
                 },
                 child: Text('Get Report'),
               ),
             ),
             Divider(),
             Obx(() {
-              double totalAmount =
-                  orderController!.individualOrderData.value?.totalAmount ?? 0;
-              double receivedAmount =
-                  orderController!.individualOrderData.value?.received ?? 0;
-              return Visibility(
-                visible:
-                    orderController!.report.isNotEmpty &&
-                    (orderController!
-                            .consolidateReport
-                            .value
-                            .isNotEmpty),
-                child: Column(
-                  children: [
-                    ElevatedButton(onPressed: (){
-                      orderController!.previewPdf(context, isIndividual: true);
-                    }, child: Text('Get PDF')),
-                    SizedBox(height: 15,),
-                    Text(
-                      orderController!.selectedStoreReport,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
+              if (orderController!.consolidateReport.isEmpty) {
+                return Text('No data');
+              }
+
+              // Process data
+              Map<String, Map<String, dynamic>> itemMap = {};
+              List<String> stores = [];
+
+              // Build data maps
+              for (var order in orderController!.orderDataList) {
+                String store = order.store ?? '';
+                if (!stores.contains(store)) {
+                  stores.add(store);
+                }
+
+                for (var item in order.items) {
+                  String name = item.name;
+                  double qty = item.qty;
+                  double rate = item.rate;
+                  String unit = item.unit;
+
+                  if (!itemMap.containsKey(name)) {
+                    itemMap[name] = {
+                      "rate": rate,
+                      "unit": unit,
+                      "overallQty": 0.0,
+                      "storeQty": {},
+                    };
+                  }
+
+                  itemMap[name]!["overallQty"] += qty;
+                  itemMap[name]!["storeQty"][store] =
+                      (itemMap[name]!["storeQty"][store] ?? 0) + qty;
+                }
+              }
+
+              double grandTotal = 0;
+
+              return Column(
+                children: [
+                  Divider(),
+                  // Table header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'Item',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Order ID : ${orderController!.individualOrderData.value?.id ?? ''}',
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Date : ${orderController!.individualOrderData.value?.createdAt ?? DateTime.now()}',
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Total Item : ${orderController!.individualOrderData.value?.items.length ?? 0}',
-                    ),
-                    SizedBox(height: 5),
-                    Divider(),
-                    Text(
-                      'Total Amount : $totalAmount',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Received Amount : ${orderController!.individualOrderData.value?.received ?? 0}',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Balance Amount : ${totalAmount - receivedAmount}',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Divider(),
-                    ListTile(
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          SizedBox(
-                            width: size.width * 0.17,
-                            child: Text(
-                              "Items",
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: size.width * 0.2,
-                            child: Text(
-                              "Quantity",
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: size.width * 0.1,
-                            child: Text(
-                              "Rate(Rs.)",
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: size.width * 0.2,
-                            child: Center(
+                      ...stores
+                          .map(
+                            (store) => Expanded(
+                              flex: 1,
                               child: Text(
-                                "Total(Rs.)",
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                store,
+                                style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
-                          ),
-                        ],
+                          )
+                          .toList(),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          'Qty',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    Divider(),
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final orderData = orderController!
-                            .individualOrderData
-                            .value!
-                            .items[index];
-                        return ListTile(
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: size.width * 0.17,
-                                child: Text(orderData.name),
-                              ),
-                              SizedBox(
-                                width: size.width * 0.2,
-                                child: Text(
-                                  "${orderData.qty} ${orderData.unit}",
-                                ),
-                              ),
-                              SizedBox(
-                                width: size.width * 0.1,
-                                child: Text("${orderData.rate}"),
-                              ),
-                              SizedBox(
-                                width: size.width * 0.2,
-                                child: Center(
-                                  child: Text(
-                                    "${orderData.rate * orderData.qty}",
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      separatorBuilder: (context, index) => Divider(),
-                      itemCount:
-                          orderController!
-                              .individualOrderData
-                              .value
-                              ?.items
-                              .length ??
-                          0,
-                    ),
-                  ],
-                ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          'Rate',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          'Total',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  // Table rows
+                  ...itemMap.entries.map((entry) {
+                    String name = entry.key;
+                    var data = entry.value;
+                    double overallQty = data['overallQty'];
+                    double rate = data['rate'];
+                    String unit = data['unit'];
+                    double total = overallQty * rate;
+                    grandTotal += total;
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Expanded(flex: 2, child: Text(name)),
+                        ...stores.map((store) {
+                          double storeQty = data['storeQty'][store] ?? 0;
+                          return Expanded(
+                            flex: 1,
+                            child: Text(storeQty > 0 ? '$storeQty$unit' : '-'),
+                          );
+                        }).toList(),
+                        Expanded(flex: 1, child: Text('$overallQty$unit')),
+                        Expanded(flex: 1, child: Text(rate.toStringAsFixed(0))),
+                        Expanded(
+                          flex: 1,
+                          child: Text(total.toStringAsFixed(0)),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                  Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Grand Total: ₹${grandTotal.toStringAsFixed(0)}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
               );
             }),
           ],

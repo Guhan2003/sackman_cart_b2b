@@ -48,7 +48,7 @@ class OrderController extends GetxController {
     orderDataList.value = [];
     consolidateReport.value =
         await dataServices.getConsolidatedReport(date: date) ?? [];
-    if (report.value.isNotEmpty) {
+    if (consolidateReport.value.isNotEmpty) {
       orderDataList.value = consolidateReport.value.map((element) {
         return OrderData.fromJson(element);
       }).toList();
