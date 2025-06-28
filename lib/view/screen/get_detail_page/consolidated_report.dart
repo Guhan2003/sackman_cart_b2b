@@ -93,11 +93,9 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
                 return Text('No data');
               }
 
-              // Process data
               Map<String, Map<String, dynamic>> itemMap = {};
               List<String> stores = [];
 
-              // Build data maps
               for (var order in orderController!.orderDataList) {
                 String store = order.store ?? '';
                 if (!stores.contains(store)) {
@@ -127,96 +125,111 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
 
               double grandTotal = 0;
 
-              return Column(
-                children: [
-                  Divider(),
-                  // Table header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          'Item',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      ...stores
-                          .map(
-                            (store) => Expanded(
-                              flex: 1,
+              return Container(
+                height: 400, // set as per your layout
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Column(
+                      children: [
+                        Divider(),
+                        // Table header
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 100,
                               child: Text(
-                                store,
+                                'Item',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
-                          )
-                          .toList(),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          'Qty',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                            ...stores.map(
+                              (store) => SizedBox(
+                                width: 80,
+                                child: Text(
+                                  store,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 60,
+                              child: Text(
+                                'Qty',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 60,
+                              child: Text(
+                                'Rate',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 80,
+                              child: Text(
+                                'Total',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          'Rate',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          'Total',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Divider(),
-                  // Table rows
-                  ...itemMap.entries.map((entry) {
-                    String name = entry.key;
-                    var data = entry.value;
-                    double overallQty = data['overallQty'];
-                    double rate = data['rate'];
-                    String unit = data['unit'];
-                    double total = overallQty * rate;
-                    grandTotal += total;
+                        Divider(),
+                        // Table rows
+                        ...itemMap.entries.map((entry) {
+                          String name = entry.key;
+                          var data = entry.value;
+                          double overallQty = data['overallQty'];
+                          double rate = data['rate'];
+                          String unit = data['unit'];
+                          double total = overallQty * rate;
+                          grandTotal += total;
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Expanded(flex: 2, child: Text(name)),
-                        ...stores.map((store) {
-                          double storeQty = data['storeQty'][store] ?? 0;
-                          return Expanded(
-                            flex: 1,
-                            child: Text(storeQty > 0 ? '$storeQty$unit' : '-'),
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(width: 100, child: Text(name)),
+                              ...stores.map((store) {
+                                double storeQty = data['storeQty'][store] ?? 0;
+                                return SizedBox(
+                                  width: 80,
+                                  child: Text(
+                                    storeQty > 0 ? '$storeQty$unit' : '-',
+                                  ),
+                                );
+                              }).toList(),
+                              SizedBox(
+                                width: 60,
+                                child: Text('$overallQty$unit'),
+                              ),
+                              SizedBox(
+                                width: 60,
+                                child: Text(rate.toStringAsFixed(0)),
+                              ),
+                              SizedBox(
+                                width: 80,
+                                child: Text(total.toStringAsFixed(0)),
+                              ),
+                            ],
                           );
                         }).toList(),
-                        Expanded(flex: 1, child: Text('$overallQty$unit')),
-                        Expanded(flex: 1, child: Text(rate.toStringAsFixed(0))),
-                        Expanded(
-                          flex: 1,
-                          child: Text(total.toStringAsFixed(0)),
+                        Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Grand Total: ₹${grandTotal.toStringAsFixed(0)}',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
                       ],
-                    );
-                  }).toList(),
-                  Divider(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Grand Total: ₹${grandTotal.toStringAsFixed(0)}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                    ),
                   ),
-                ],
+                ),
               );
             }),
           ],
