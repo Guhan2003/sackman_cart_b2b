@@ -128,7 +128,7 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
                 double grandTotal = 0;
 
                 return SizedBox(
-                  height: 400, // adjust based on layout
+                  height: 1000, // adjust based on layout
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
                     child: SingleChildScrollView(

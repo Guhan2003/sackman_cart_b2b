@@ -190,7 +190,8 @@ class OrderController extends GetxController {
       // Consolidated report PDF generation
       pdf.addPage(
         pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
+          orientation: pw.PageOrientation.landscape,
+          pageFormat: PdfPageFormat.a4.landscape,
           build: (pw.Context context) {
             Map<String, Map<String, dynamic>> itemMap = {};
             List<String> storeList = [];
