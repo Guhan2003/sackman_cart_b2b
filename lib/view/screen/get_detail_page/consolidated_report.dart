@@ -222,7 +222,7 @@ class _ConsolidatedReportState extends State<ConsolidatedReport> {
                                 ),
                                 SizedBox(
                                   width: 80,
-                                  child: Text(total.toStringAsFixed(0)),
+                                  child: Text('₹ ${total.toStringAsFixed(0)}'),
                                 ),
                               ],
                             );
