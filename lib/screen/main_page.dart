@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sackmman_cart_b2b/view/screen/admin_page/login_page.dart';
-import 'package:sackmman_cart_b2b/view/screen/get_detail_page/consolidated_report.dart';
-import 'package:sackmman_cart_b2b/view/screen/get_detail_page/individual_store.dart';
-import 'package:sackmman_cart_b2b/view/screen/order_page.dart';
+import 'package:sackmman_cart_b2b/screen/admin_page/login_page.dart';
+import 'package:sackmman_cart_b2b/screen/get_detail_page/consolidated_report.dart';
+import 'package:sackmman_cart_b2b/screen/get_detail_page/individual_store.dart';
+import 'package:sackmman_cart_b2b/screen/order_page.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});

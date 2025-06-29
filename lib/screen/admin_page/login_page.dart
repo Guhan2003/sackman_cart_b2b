@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sackmman_cart_b2b/controller/item_controller.dart';
-import 'package:sackmman_cart_b2b/view/screen/admin_page/admin_home.dart';
+import 'package:sackmman_cart_b2b/screen/admin_page/admin_home.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});

@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:sackmman_cart_b2b/firebase_options.dart';
-import 'package:sackmman_cart_b2b/view/screen/main_page.dart';
+import 'package:sackmman_cart_b2b/screen/main_page.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
