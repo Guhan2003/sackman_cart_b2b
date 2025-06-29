@@ -156,7 +156,7 @@ class _OrderPageState extends State<OrderPage> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               trailing: Text(
-                'Quantity',
+                'Total',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
             ),
@@ -188,7 +188,7 @@ class _OrderPageState extends State<OrderPage> {
                           style: TextStyle(fontSize: 13),
                         ),
                         trailing: Text(
-                          'Total: ₹${(orderItem.rate * orderItem.qty).toStringAsFixed(2)}',
+                          '₹${(orderItem.rate * orderItem.qty).toStringAsFixed(2)}',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
