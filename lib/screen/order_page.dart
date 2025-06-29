@@ -183,9 +183,13 @@ class _OrderPageState extends State<OrderPage> {
                       },
                       child: ListTile(
                         title: Text(orderItem.name),
+                        subtitle: Text(
+                          'Rate: ₹${orderItem.rate.toStringAsFixed(2)} x Qty: ${orderItem.qty} ${orderItem.unit}',
+                          style: TextStyle(fontSize: 13),
+                        ),
                         trailing: Text(
-                          '${orderItem.qty} ${orderItem.unit}',
-                          style: TextStyle(fontSize: 15),
+                          'Total: ₹${(orderItem.rate * orderItem.qty).toStringAsFixed(2)}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     );
@@ -193,6 +197,28 @@ class _OrderPageState extends State<OrderPage> {
                 );
               }),
             ),
+            Obx(() {
+              double overallTotal = orderController!.orderItemList.fold(
+                0,
+                (sum, item) => sum + (item.qty * item.rate),
+              );
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Overall Total: ₹${overallTotal.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
             SizedBox(height: 5),
           ],
         ),
@@ -369,7 +395,7 @@ class _OrderPageState extends State<OrderPage> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: Text('Order Confimation'),
+                    title: Text('Order Confirmation'),
                     content: Text("Would you like to confirm this order?"),
                     actions: [
                       ElevatedButton.icon(
