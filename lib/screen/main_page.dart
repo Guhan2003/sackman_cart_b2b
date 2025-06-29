@@ -33,12 +33,20 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sackmman Cart Business'), centerTitle: true),
+      appBar: AppBar(title: Column(
+        children: [
+          Text('SACKMMAN CART', style: TextStyle(fontWeight: FontWeight.bold),),
+          Text(" \" HARVESTED WITH CARE, DELIVERED WITH LOVE \" ",style: TextStyle(fontSize: 11),)
+        ],
+      ), centerTitle: true),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 15,
           children: [
+            SizedBox(
+              height: 250,
+              child: Image.asset('assets/logo.jpeg')),
             ElevatedButton.icon(
               label: Text('Place Order'),
               onPressed: () => Navigator.push(
