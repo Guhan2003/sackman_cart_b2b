@@ -9,6 +9,7 @@ import 'package:sackmman_cart_b2b/model/item.dart';
 import 'package:sackmman_cart_b2b/model/order_item.dart';
 import 'package:sackmman_cart_b2b/services/data_services.dart';
 import 'package:sackmman_cart_b2b/utils/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
@@ -26,6 +27,8 @@ class _OrderPageState extends State<OrderPage> {
   double qty = 0;
   final _formKey = GlobalKey<FormState>();
   DataServices dataServices = DataServices();
+  bool isVendor = false;
+  String vendorStoreName = '';
 
   Future<void> pickDate() async {
     final DateTime? picked = await showDatePicker(
@@ -48,7 +51,16 @@ class _OrderPageState extends State<OrderPage> {
     selectedDate = DateTime.now();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       orderController = Get.put(OrderController());
-      orderController!.getStores();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      isVendor = prefs.getBool('isVendor') ?? false;
+
+      if (isVendor) {
+        vendorStoreName = prefs.getString('storeName') ?? '';
+        orderController!.selectedStore = vendorStoreName;
+      } else {
+        await orderController!.getStores();
+      }
+
       await itemController.getItems();
       setState(() {
         isLoading = false;
@@ -70,28 +82,43 @@ class _OrderPageState extends State<OrderPage> {
           children: [
             SizedBox(
               width: size.width * 0.9,
-              child: Obx(() {
-                if (orderController!.stores.isEmpty) {
-                  return Center(child: const CircularProgressIndicator());
-                }
-                return DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  hint: const Text('Select Store'),
-                  items: orderController!.stores
-                      .map(
-                        (store) => DropdownMenuItem<String>(
-                          value: store,
-                          child: Text(store),
+              child: isVendor
+                  ? Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        vendorStoreName,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    )
+                  : Obx(() {
+                      if (orderController!.stores.isEmpty) {
+                        return Center(child: const CircularProgressIndicator());
+                      }
+                      return DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
                         ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    orderController!.selectedStore = value!;
-                  },
-                );
-              }),
+                        hint: const Text('Select Store'),
+                        value: orderController!.selectedStore == ''
+                            ? null
+                            : orderController!.selectedStore,
+                        items: orderController!.stores
+                            .map(
+                              (store) => DropdownMenuItem<String>(
+                                value: store,
+                                child: Text(store),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          orderController!.selectedStore = value!;
+                        },
+                      );
+                    }),
             ),
 
             const SizedBox(height: 30),
@@ -336,7 +363,8 @@ class _OrderPageState extends State<OrderPage> {
         ),
         ElevatedButton.icon(
           onPressed: () {
-            if (orderController!.selectedStore != '' && orderController!.orderItemList.isNotEmpty) {
+            if (orderController!.selectedStore != '' &&
+                orderController!.orderItemList.isNotEmpty) {
               showDialog(
                 context: context,
                 builder: (context) {
@@ -345,9 +373,19 @@ class _OrderPageState extends State<OrderPage> {
                     content: Text("Would you like to confirm this order?"),
                     actions: [
                       ElevatedButton.icon(
-                        onPressed: () async{
-                          showDialog(context: context, builder: (context)=> Center(child: CircularProgressIndicator()));
-                          await dataServices.placeOrder(store: orderController!.selectedStore, orderItems: orderController!.orderItemList, date: selectedDate!, context: context, orderController: orderController!);
+                        onPressed: () async {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                Center(child: CircularProgressIndicator()),
+                          );
+                          await dataServices.placeOrder(
+                            store: orderController!.selectedStore,
+                            orderItems: orderController!.orderItemList,
+                            date: selectedDate!,
+                            context: context,
+                            orderController: orderController!,
+                          );
                           Navigator.pop(context);
                           Navigator.pop(context);
                           Navigator.pop(context);
@@ -365,7 +403,9 @@ class _OrderPageState extends State<OrderPage> {
                 },
               );
             } else {
-              Fluttertoast.showToast(msg: 'Select Store and Order list is empty');
+              Fluttertoast.showToast(
+                msg: 'Select Store and Order list is empty',
+              );
             }
           },
           label: Text('Place Order'),
