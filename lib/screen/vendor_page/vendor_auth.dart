@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sackmman_cart_b2b/controller/auth_controller.dart';
+import 'package:sackmman_cart_b2b/utils/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VendorAuth extends StatefulWidget {
   const VendorAuth({super.key});
@@ -13,6 +15,17 @@ class _VendorAuthState extends State<VendorAuth> {
   final TextEditingController userIdController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final itemController = Get.put(AuthController());
+
+  @override
+  void initState() {
+    super.initState();
+    _setVendorFlag();
+  }
+
+  Future<void> _setVendorFlag() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(isVendor, true);
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -14,12 +14,12 @@ void main() async {
 
 class MainApp extends StatelessWidget {
   MainApp({super.key});
-  bool isvendor = true;
+  bool isVendor = false;
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      home: isvendor ? VendorAuth() : MainPage(),
+      home: isVendor ? VendorAuth() : MainPage(),
       debugShowCheckedModeBanner: false,
     );
   }

@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:sackmman_cart_b2b/services/data_services.dart';
+import 'package:sackmman_cart_b2b/utils/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController extends GetxController {
   DataServices dataServices = DataServices();
@@ -24,6 +26,8 @@ class AuthController extends GetxController {
 
       if (userData != null) {
         if (userData['passcode'] == password) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString(storeName, userData[storeName]);
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Login Successful')));
