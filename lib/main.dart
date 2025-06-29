@@ -3,24 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:sackmman_cart_b2b/firebase_options.dart';
 import 'package:sackmman_cart_b2b/screen/main_page.dart';
+import 'package:sackmman_cart_b2b/screen/vendor_page/vendor_auth.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MainApp());
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  MainApp({super.key});
+  bool isvendor = true;
 
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(
-      home: MainPage(),
-      debugShowCheckedModeBanner: false
+    return GetMaterialApp(
+      home: isvendor ? VendorAuth() : MainPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

@@ -151,10 +151,10 @@ class DataServices {
         .get();
 
     if (reportQuery.docs.isNotEmpty) {
-    List<Map<String, dynamic>> report = reportQuery.docs.map((element) {
-      return element.data() as Map<String, dynamic>;
-    }).toList();
-    return report;
+      List<Map<String, dynamic>> report = reportQuery.docs.map((element) {
+        return element.data() as Map<String, dynamic>;
+      }).toList();
+      return report;
     }
     Fluttertoast.showToast(msg: "No Data Found!!");
     return null;
@@ -166,5 +166,23 @@ class DataServices {
   }) async {
     await ordersCollection.doc(orderId).update({'received': amount});
     Fluttertoast.showToast(msg: 'Received amount update successfully');
+  }
+
+  Future<Map<String, dynamic>?> fetchVendorUser(String userId) async {
+    try {
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('id', isEqualTo: userId)
+          .get();
+
+      if (userSnapshot.docs.isNotEmpty) {
+        return userSnapshot.docs.first.data() as Map<String, dynamic>;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching vendor user: $e');
+      return null;
+    }
   }
 }
