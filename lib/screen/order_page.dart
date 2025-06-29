@@ -62,7 +62,9 @@ class _OrderPageState extends State<OrderPage> {
       if (isVendor) {
         vendorStoreName = prefs.getString(storeName) ?? '';
         orderController!.selectedStore = vendorStoreName;
-        pendingDue = await dataServices.getStorePendingDue(orderController!.selectedStore);
+        pendingDue = await dataServices.getStorePendingDue(
+          orderController!.selectedStore,
+        );
       } else {
         await orderController!.getStores();
       }
@@ -397,49 +399,75 @@ class _OrderPageState extends State<OrderPage> {
           onPressed: () {
             if (orderController!.selectedStore != '' &&
                 orderController!.orderItemList.isNotEmpty) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text('Order Confirmation'),
-                    content: Text("Would you like to confirm this order?"),
-                    actions: [
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          showDialog(
-                            context: context,
-                            builder: (context) =>
-                                Center(child: CircularProgressIndicator()),
-                          );
-                          await dataServices.placeOrder(
-                            store: orderController!.selectedStore,
-                            orderItems: orderController!.orderItemList,
-                            date: selectedDate!,
-                            context: context,
-                            orderController: orderController!,
-                          );
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        },
-                        label: Text('Confirm', style: TextStyle(color: green)),
-                        icon: Icon(Icons.check_circle, color: green),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () => Navigator.pop(context),
-                        label: Text('Cancel', style: TextStyle(color: red)),
-                        icon: Icon(Icons.close, color: red),
-                      ),
-                    ],
-                  );
-                },
-              );
+              if (pendingDue >= maxDue) {
+                // Show block dialog
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('Order Blocked'),
+                      content: Text('Pending Due Available. Contact admin.'),
+                      actions: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else {
+                // Allow placing order as usual
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('Order Confirmation'),
+                      content: Text("Would you like to confirm this order?"),
+                      actions: [
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            showDialog(
+                              context: context,
+                              builder: (context) =>
+                                  Center(child: CircularProgressIndicator()),
+                            );
+                            await dataServices.placeOrder(
+                              store: orderController!.selectedStore,
+                              orderItems: orderController!.orderItemList,
+                              date: selectedDate!,
+                              context: context,
+                              orderController: orderController!,
+                            );
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          label: Text(
+                            'Confirm',
+                            style: TextStyle(color: green),
+                          ),
+                          icon: Icon(Icons.check_circle, color: green),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          label: Text('Cancel', style: TextStyle(color: red)),
+                          icon: Icon(Icons.close, color: red),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
             } else {
               Fluttertoast.showToast(
                 msg: 'Select Store and Order list is empty',
               );
             }
           },
+
           label: Text('Place Order'),
           icon: Icon(Icons.check_circle_outline),
         ),
