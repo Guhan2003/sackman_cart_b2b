@@ -14,7 +14,7 @@ void main() async {
 
 class MainApp extends StatelessWidget {
   MainApp({super.key});
-  bool isVendor = false;
+  bool isVendor = true;
 
   @override
   Widget build(BuildContext context) {

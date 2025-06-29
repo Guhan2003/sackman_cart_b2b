@@ -4,6 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SackmmanMethods {
   Future<bool> getIsVendor() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(isVendor) ?? false;
+    return prefs.getBool(isVendorConst) ?? false;
   }
 }

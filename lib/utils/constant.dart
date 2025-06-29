@@ -2,5 +2,5 @@ import 'package:flutter/material.dart';
 
 Color red = Colors.red;
 Color green = Colors.green;
-String isVendor = 'isVendor'; 
+String isVendorConst = 'isVendor'; 
 String storeName = 'storeName';

@@ -24,7 +24,7 @@ class _VendorAuthState extends State<VendorAuth> {
 
   Future<void> _setVendorFlag() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(isVendor, true);
+    await prefs.setBool(isVendorConst, true);
   }
 
   @override

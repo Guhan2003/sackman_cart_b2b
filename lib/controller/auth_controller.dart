@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:sackmman_cart_b2b/screen/main_page.dart';
+import 'package:sackmman_cart_b2b/screen/order_page.dart';
 import 'package:sackmman_cart_b2b/services/data_services.dart';
 import 'package:sackmman_cart_b2b/utils/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,7 +33,7 @@ class AuthController extends GetxController {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Login Successful')));
-          // Navigate to next page or dashboard here if needed
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> MainPage()));
         } else {
           ScaffoldMessenger.of(
             context,
