@@ -29,6 +29,9 @@ class _OrderPageState extends State<OrderPage> {
   DataServices dataServices = DataServices();
   bool isVendor = false;
   String vendorStoreName = '';
+  int maxDue = 0;
+  double pendingDue = 0;
+
 
   Future<void> pickDate() async {
     final DateTime? picked = await showDatePicker(
@@ -50,13 +53,16 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
     selectedDate = DateTime.now();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      maxDue = await dataServices.getMaxDue();
+
       orderController = Get.put(OrderController());
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      isVendor = prefs.getBool('isVendor') ?? false;
+      isVendor = prefs.getBool(isVendorConst) ?? false;
 
       if (isVendor) {
-        vendorStoreName = prefs.getString('storeName') ?? '';
+        vendorStoreName = prefs.getString(storeName) ?? '';
         orderController!.selectedStore = vendorStoreName;
+        pendingDue = await dataServices.getStorePendingDue(orderController!.selectedStore);
       } else {
         await orderController!.getStores();
       }

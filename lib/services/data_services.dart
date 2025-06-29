@@ -185,4 +185,35 @@ class DataServices {
       return null;
     }
   }
+
+  Future<int> getMaxDue() async {
+    var snapshot = await FirebaseFirestore.instance
+        .collection('utils')
+        .doc('configs')
+        .get();
+
+    if (snapshot.exists && snapshot.data()!.containsKey('maxDue')) {
+      return snapshot.data()!['maxDue'];
+    } else {
+      return 0;
+    }
+  }
+
+  Future<double> getStorePendingDue(String store) async {
+    double pendingDue = 0;
+
+    var snapshot = await FirebaseFirestore.instance
+        .collection('orders')
+        .where('store', isEqualTo: store)
+        .get();
+
+    for (var doc in snapshot.docs) {
+      var data = doc.data();
+      double totalAmount = (data['totalAmount'] ?? 0).toDouble();
+      double received = (data['received'] ?? 0).toDouble();
+      pendingDue += (totalAmount - received);
+    }
+
+    return pendingDue;
+  }
 }
