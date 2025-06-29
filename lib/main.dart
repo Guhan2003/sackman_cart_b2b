@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  bool isVendor = false;
+  bool isVendor = true;
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setBool(isVendorConst, isVendor);
   runApp(MainApp(isVendor: isVendor));

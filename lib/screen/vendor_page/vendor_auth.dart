@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sackmman_cart_b2b/controller/auth_controller.dart';
+import 'package:sackmman_cart_b2b/screen/main_page.dart';
 import 'package:sackmman_cart_b2b/utils/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,12 +20,21 @@ class _VendorAuthState extends State<VendorAuth> {
   @override
   void initState() {
     super.initState();
-    _setVendorFlag();
+    _checkStoreNameAndNavigate();
   }
 
-  Future<void> _setVendorFlag() async {
+  Future<void> _checkStoreNameAndNavigate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Set isVendor flag true
     await prefs.setBool(isVendorConst, true);
+
+    // Check storeName value
+    String? storeName = prefs.getString('storeName');
+
+    if (storeName != null && storeName.isNotEmpty) {
+      Get.offAll(() => MainPage()); 
+    }
   }
 
   @override
